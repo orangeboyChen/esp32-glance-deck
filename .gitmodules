@@ -1,0 +1,9 @@
+[submodule "home-assistant"]
+	path = home-assistant
+	url = https://github.com/orangeboyChen/ha-esp32-glance-deck.git
+[submodule "console"]
+	path = console
+	url = https://github.com/orangeboyChen/esp32-glance-deck-backend.git
+[submodule "firmware"]
+	path = firmware
+	url = https://github.com/orangeboyChen/esp32-glance-deck-firmware.git
