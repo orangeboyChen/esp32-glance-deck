@@ -2,9 +2,9 @@
 
 This repository assembles the Glance Deck projects as Git submodules:
 
-- [Home Assistant integration](home-assistant)
-- [Backend control plane](console)
-- [ESP32 firmware](firmware)
+- [Home Assistant integration](https://github.com/orangeboyChen/ha-esp32-glance-deck)
+- [Backend control plane](https://github.com/orangeboyChen/esp32-glance-deck-backend)
+- [ESP32 firmware](https://github.com/orangeboyChen/esp32-glance-deck-firmware)
 
 Clone the workspace and initialize all submodules:
 
