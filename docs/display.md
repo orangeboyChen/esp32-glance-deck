@@ -76,11 +76,11 @@ SVG baseline/anchor points on a 400×300 canvas, **no border**.
 | Icon | Lucide `trending-up` | 32×32 px | — | `#26322a` stroke, 2 px | (28, 18) top-left | — |
 | Title | `Usage` | 26 | 400 | `#26322a` | (66, 44) | left, vertically centered with icon |
 | Subtitle | `Codex` | 12 | 400 | `#627168` | (28, 66) | left |
-| Bar 1 label/value | `Day 19%` / `$75.2 / $388 USD` | 13 | 400 / 700 | `#627168` / `#26322a` | y=100 | left / right |
-| Bar 1 track/fill | rect | 344×8 / 344×4 | — | `#26322a` | y=106 / 108 | — |
-| Bar 1 details | `$312.80 left` / `resets 8/13 00:05` | 11 | 400 | `#627168` | y=128 | left / right |
-| Bar 2 | `Week 60%` / `$617.04 / $1027 USD`; `$409.96 left`; `resets 8/13 02:07` | 11–13 | 400 / 700 | as above | y=142, 148, 170 | — |
-| Bar 3 | `Month 41%` / `$1688.61 / $4108 USD`; `$2419.39 left`; `resets 8/26 13:00` | 11–13 | 400 / 700 | as above | y=184, 190, 212 | — |
+| Bar 1 label/value | `Day 19%` / `$75.2 / $388 USD` | 13 | 400 / 700 | `#627168` / `#26322a` | y=96 | left / right |
+| Bar 1 track/fill | rect | 344×8 / 344×4 | — | `#26322a` | y=102 / 104 | — |
+| Bar 1 details | `$312.80 left` / `resets 8/13 00:05` | 11 | 400 | `#627168` | y=124 | left / right |
+| Bar 2 | `Week 60%` / `$617.04 / $1027 USD`; `$409.96 left`; `resets 8/13 02:07` | 11–13 | 400 / 700 | as above | y=150, 156, 178 | — |
+| Bar 3 | `Month 41%` / `$1688.61 / $4108 USD`; `$2419.39 left`; `resets 8/26 13:00` | 11–13 | 400 / 700 | as above | y=204, 210, 232 | — |
 | Footer rule | line | — | — | `#26322a` | (28,266)→(372,266) | — |
 | Footer text | `IMMUTABLE DISPLAY RELEASE` | 10 | 400 | `#26322a` | (28, 282) | left |
 
@@ -256,8 +256,8 @@ functional symbol, hairline separators, and compact gesture geometry.
 | Symbol | gear | — | 32 px | centered, y=28 | center |
 | Title | `MAINTENANCE` | Noto Sans SC | 26 px | centered, y=78 | center |
 | Structure | divider + two action columns | — | 344 px / 72 px | y=118 / x=200 | — |
-| Left action | short-key glyph / `CHECK UPDATE` / `SHORT` | Noto Sans SC | 14 px | centered x=128, y=140/178/208 | center |
-| Right action | hold-key glyph / `WIFI SETUP` / `HOLD` | Noto Sans SC | 14 px | centered x=272, y=140/178/208 | center |
+| Left action | Lucide `mouse-pointer-click` / `CHECK UPDATE` / `SHORT` | Noto Sans SC | 32 px / 14 px | centered x=128, y=140/178/208 | center |
+| Right action | Lucide `timer` / `WIFI SETUP` / `HOLD` | Noto Sans SC | 32 px / 14 px | centered x=272, y=140/178/208 | center |
 
 ### E2. Wi-Fi setup confirmation (2nd long press)
 
@@ -267,7 +267,7 @@ functional symbol, hairline separators, and compact gesture geometry.
 |---|---|---|---|---|---|
 | Header | Wi-Fi glyph / `WIFI SETUP` / `CONFIRM ACCESS POINT` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
 | Divider | 344 px rule | — | 1 px | y=96 | — |
-| Action | held-key glyph / `HOLD TO START` | Noto Sans SC | 32 px / 18 px | centered, y=122/166 | center |
+| Action | Lucide `timer` / `HOLD TO START` | Noto Sans SC | 32 px / 18 px | centered, y=122/166 | center |
 | Hint | `SHORT PRESS CANCELS` | Noto Sans SC | 14 px | centered, y=214 | center |
 
 ### E3. Starting Wi-Fi setup (3rd long press → restart)
@@ -290,7 +290,7 @@ Device then restarts into the SoftAP (D2).
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Header | check glyph / `SYSTEM UPDATE` / `CHECKING FOR RELEASE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Header | update glyph / `SYSTEM UPDATE` / `CHECKING FOR RELEASE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
 | Divider | 344 px rule | — | 1 px | y=96 | — |
 | State | check glyph / `CHECKING` | Noto Sans SC | 32 px / 18 px | centered, y=124/180 | center |
 
@@ -303,10 +303,10 @@ power and makes the background flicker.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Header | download glyph / `SYSTEM UPDATE` / `UPDATE READY` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Header | update glyph / `SYSTEM UPDATE` / `UPDATE READY` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
 | Divider | 344 px rule | — | 1 px | y=96 | — |
 | Candidate | download glyph / `VERSION 0.2.0` | Noto Sans SC | 32 px / 14 px | centered, y=116/164 | center |
-| Action | held-key glyph / `HOLD TO APPLY` | Noto Sans SC | 32 px / 14 px | centered, y=190/220 | center |
+| Action | Lucide `timer` / `HOLD TO APPLY` | Noto Sans SC | 32 px / 14 px | centered, y=190/220 | center |
 
 Version comes from the `ota/check/state` payload. A separate long press
 confirms; a short press cancels back to the last normal page. The signed image
@@ -318,7 +318,7 @@ size is learned from the HTTPS response only when the download begins.
 
 | Element | Text | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Header | check glyph / `SYSTEM UPDATE` / `CHECK COMPLETE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Header | update glyph / `SYSTEM UPDATE` / `CHECK COMPLETE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
 | Divider | 344 px rule | — | 1 px | y=96 | — |
 | State | check-mark glyph / `UP TO DATE` | Noto Sans SC | 32 px / 18 px | centered, y=124/180 | center |
 
@@ -328,7 +328,7 @@ size is learned from the HTTPS response only when the download begins.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Header | warning glyph / `SYSTEM UPDATE` / `CHECK FAILED` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Header | update glyph / `SYSTEM UPDATE` / `CHECK FAILED` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
 | Divider | 344 px rule | — | 1 px | y=96 | — |
 | Reason | failure glyph / `<reason>` (≤16 chars) | Noto Sans SC | 32 px / 14 px | centered, y=124/182 | center |
 
