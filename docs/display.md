@@ -39,12 +39,14 @@ reader or LLM can reproduce it without inspecting the image.
 
 | Screen | Icon | Lucide name | Source | Size |
 |---|---|---|---|---|
-| A1 Usage | trend | `trending-up` | console SVG | 32×32 |
-| A3 Home | home | `house` | console SVG | 32×32 |
-| A4 System | monitor | `monitor` | console SVG | 32×32 |
+| A1 Usage | trend | `trending-up` | `lucide-react` SVG | 32×32 |
+| A3 Home | home | `house` | `lucide-react` SVG | 32×32 |
+| A4 System | monitor | `monitor` | `lucide-react` SVG | 32×32 |
 
-Console icons are embedded in `render_icon`; local device states use the shared
-title, text, and progress geometry instead of decorative icons.
+Console icons are embedded in `render_icon`. Local device states reuse the
+same Lucide source library at build time: `firmware/scripts/generate-local-icons.mjs`
+renders the named Lucide SVG into 32×32 1-bit assets, and firmware only blits
+those immutable assets. No local screen icon is hand-drawn or parsed at runtime.
 
 ---
 
@@ -71,22 +73,20 @@ SVG baseline/anchor points on a 400×300 canvas, **no border**.
 
 | Element | Text | Font size | Weight | Color | x,y (anchor) | Align |
 |---|---|---|---|---|---|---|
-| Icon | Lucide `trending-up` | 32×32 px | — | `#26322a` stroke, 2 px | (28, 22) top-left | — |
-| Title | `Usage` | 26 | 400 | `#26322a` | (70, 52) | left, vertically centered with icon |
-| Subtitle | `Codex subscription` | 12 | 400 | `#627168` | (28, 74) | left |
-| Bar 1 label | `Day 10%` | 13 | 400 | `#627168` | (28, 110) | left |
-| Bar 1 value | `79 / 776 USD` | 13 | 700 | `#26322a` | (372, 110) | right |
-| Bar 1 track | rect | 344×8, rx 4 | — | `none` stroke `#26322a` 2 px | (28, 122) | — |
-| Bar 1 fill | rect | 34×4, rx 2 | — | `#26322a` | (30, 124) | — |
-| Bar 2 | `Week 30%` / `618 / 2054 USD` | 13 | — | as above | label (28,144), value (372,144), bar (28,156) | — |
-| Bar 3 | `Month 25%` / `2068 / 8216 USD` | 13 | — | as above | label (28,178), value (372,178), bar (28,190) | — |
-| Line | `Resets` / `Tomorrow` | 13 / 16 | 400 / 700 | `#627168` / `#26322a` | (28, 228) / (372, 228) | left / right |
-| Footer rule | line | — | — | `#9ba89f` | (28,266)→(372,266) | — |
-| Footer text | `IMMUTABLE DISPLAY RELEASE` | 10 | 400 | `#627168` | (28, 282) | left |
+| Icon | Lucide `trending-up` | 32×32 px | — | `#26322a` stroke, 2 px | (28, 18) top-left | — |
+| Title | `Usage` | 26 | 400 | `#26322a` | (66, 44) | left, vertically centered with icon |
+| Subtitle | `Codex` | 12 | 400 | `#627168` | (28, 66) | left |
+| Bar 1 label/value | `Day 19%` / `$75.2 / $388 USD` | 13 | 400 / 700 | `#627168` / `#26322a` | y=100 | left / right |
+| Bar 1 track/fill | rect | 344×8 / 344×4 | — | `#26322a` | y=106 / 108 | — |
+| Bar 1 details | `$312.80 left` / `resets 8/13 00:05` | 11 | 400 | `#627168` | y=128 | left / right |
+| Bar 2 | `Week 60%` / `$617.04 / $1027 USD`; `$409.96 left`; `resets 8/13 02:07` | 11–13 | 400 / 700 | as above | y=142, 148, 170 | — |
+| Bar 3 | `Month 41%` / `$1688.61 / $4108 USD`; `$2419.39 left`; `resets 8/26 13:00` | 11–13 | 400 / 700 | as above | y=184, 190, 212 | — |
+| Footer rule | line | — | — | `#26322a` | (28,266)→(372,266) | — |
+| Footer text | `IMMUTABLE DISPLAY RELEASE` | 10 | 400 | `#26322a` | (28, 282) | left |
 
 Progress bar fill width = `round(344 × percent / 100) - 4`, clamped ≥ 0.
-Sample values reflect aggregated usage limits (micro-USD ÷ 1e6): Day 79/776,
-Week 618/2054, Month 2068/8216.
+The Usage reference frame uses Day 75.2/388, Week 617.04/1027, and Month
+1688.61/4108 USD, with each row also showing remaining amount and reset time.
 
 **CJK variant**: the same page renders in Chinese when the console document
 uses CJK — title `用量`, subtitle `订阅`, bars `今日`/`本周`/`本月`,
@@ -162,7 +162,9 @@ ambiguous boot-progress screen.
 |---|---|---|
 | Title | `CONNECTING` | common local title row |
 | Subtitle | `WIFI AND CONTROL PLANE` | common local subtitle row |
-| Body | `PLEASE WAIT` | centered local text |
+| Header icon | Wi-Fi glyph | right-aligned status symbol |
+| Divider | 344 px rule | separates header from state |
+| Body | three-stage connection track + `JOINING NETWORK` | first stage filled; no spinner |
 
 ### B2. Boot — no release yet → pairing (see D1)
 
@@ -190,8 +192,8 @@ around. Firmware flushes the verified target frame, overlays the A5 dots for
 
 All D/E/G screens use the common firmware `local_screen` canvas and the same
 Noto Sans SC typeface as A-pages, pre-rasterized into a bounded embedded ASCII
-subset. No SVG parsing, runtime font loading, icon bitmap, or software border
-is used.
+subset. Functional monochrome symbols, dividers, cards, and gesture geometry
+are rasterized locally; no SVG parsing or runtime font loading is used.
 
 ### D1. Pairing code
 
@@ -204,14 +206,15 @@ console and other local pages, at the large embedded size.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y (top-left) | Align |
 |---|---|---|---|---|---|
+| Header icon | Lucide `link` | `lucide-react` → firmware 1-bit asset | 32 px | (340, 26) | right |
 | Title | `PAIR DEVICE` | Noto Sans SC | 26 px | (28, 26) | left |
 | Subtitle | `ENTER CODE IN CONSOLE` | Noto Sans SC | 14 px | (28, 70) | left |
-| Code | six digits | Noto Sans SC | 42 px | centered, y=120 | center |
-| Hint | `OPEN CONSOLE TO CONTINUE` | Noto Sans SC | 14 px | centered, y=184 | center |
+| Divider/card | rule + outlined code card | — | 344 px / 288×78 px | y=96 / (56,112) | — |
+| Code | six digits | Noto Sans SC | 42 px | centered, y=124 | center |
+| Hint | `ENTER THIS CODE IN CONSOLE` | Noto Sans SC | 14 px | centered, y=214 | center |
 
 Each digit uses its Noto Sans SC advance width in the embedded 42 px raster;
-the full six-digit value is centered without a custom digit pitch, separate
-icon, or oversized digit style.
+the full six-digit value is centered inside the outlined card.
 
 ### D2. Wi-Fi setup credentials
 
@@ -224,14 +227,15 @@ never in normal display docs.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
+| Header icon | Lucide `wifi` | `lucide-react` → firmware 1-bit asset | 32 px | (340, 26) | right |
 | Title | `WIFI SETUP` | Noto Sans SC | 26 px | (28, 26) | left |
 | Subtitle | `JOIN THIS NETWORK` | Noto Sans SC | 14 px | (28, 70) | left |
-| SSID label/value | `SSID` / `GlanceDeck-AB12` | Noto Sans SC | 14 px | y=112, label x=28 value x=92 | left |
-| Password label | `PASSWORD` | Noto Sans SC | 14 px | (28, 164) | left |
-| Password value | `GD12AB34EF` (10 chars, A–Z0–9) | Noto Sans SC | 26 px | (28, 188) | left |
+| Dividers | 344 px rules | — | 1 px | y=96,178 | — |
+| SSID label/value | `SSID` / `GlanceDeck-AB12` | Noto Sans SC | 14 px / 26 px | (28,114) / (28,132) | left; value ellipsized at 344 px |
+| Password label/value | `PASSWORD` / `GD12AB34EF` | Noto Sans SC | 14 px / 26 px | (28,194) / (28,212) | left |
 
 SSID is derived from the device MAC (e.g. `GlanceDeck-<4 hex>`); password is
-per-start random. The SSID value column is capped at 280 px and overlong names
+per-start random. The SSID value column is capped at 344 px and overlong names
 are ellipsized with `...`; the password is never truncated. Both appear only
 on this screen.
 
@@ -240,8 +244,8 @@ on this screen.
 ## E. Maintenance flow (firmware-rendered, ≤16 uppercase chars)
 
 Long KEY on a normal page enters maintenance. Short KEY cancels → last normal
-page. All maintenance and update-check content uses the shared local header,
-row, and centered text layout; no screen is offset or decorated with an icon.
+page. Maintenance and update-check screens use a shared local header, one
+functional symbol, hairline separators, and compact gesture geometry.
 
 ### E1. Maintenance overview (1st long press)
 
@@ -249,9 +253,11 @@ row, and centered text layout; no screen is offset or decorated with an icon.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `MAINTENANCE` | Noto Sans SC | 26 px | centered, y=72 | center |
-| Subtitle | `SHORT: CHECK UPDATE` | Noto Sans SC | 14 px | centered, y=116 | center |
-| Action | `LONG: WIFI SETUP` | Noto Sans SC | 18 px | centered, y=154 | center |
+| Symbol | gear | — | 32 px | centered, y=28 | center |
+| Title | `MAINTENANCE` | Noto Sans SC | 26 px | centered, y=78 | center |
+| Structure | divider + two action columns | — | 344 px / 72 px | y=118 / x=200 | — |
+| Left action | short-key glyph / `CHECK UPDATE` / `SHORT` | Noto Sans SC | 14 px | centered x=128, y=140/178/208 | center |
+| Right action | hold-key glyph / `WIFI SETUP` / `HOLD` | Noto Sans SC | 14 px | centered x=272, y=140/178/208 | center |
 
 ### E2. Wi-Fi setup confirmation (2nd long press)
 
@@ -259,9 +265,10 @@ row, and centered text layout; no screen is offset or decorated with an icon.
 
 | Element | Text | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `WIFI SETUP` | Noto Sans SC | 26 px | (28,26) | left |
-| Hint 1 | `LONG AGAIN TO START` | Noto Sans SC | 18 px | centered, y=128 | center |
-| Hint 2 | `SHORT TO CANCEL` | Noto Sans SC | 14 px | centered, y=172 | center |
+| Header | Wi-Fi glyph / `WIFI SETUP` / `CONFIRM ACCESS POINT` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| Action | held-key glyph / `HOLD TO START` | Noto Sans SC | 32 px / 18 px | centered, y=122/166 | center |
+| Hint | `SHORT PRESS CANCELS` | Noto Sans SC | 14 px | centered, y=214 | center |
 
 ### E3. Starting Wi-Fi setup (3rd long press → restart)
 
@@ -269,9 +276,9 @@ row, and centered text layout; no screen is offset or decorated with an icon.
 
 | Element | Text | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `WIFI SETUP` | Noto Sans SC | 26 px | (28,26) | left |
-| Subtitle | `STARTING ACCESS POINT` | Noto Sans SC | 14 px | (28,70) | left |
-| Body | `RESTARTING` | Noto Sans SC | 18 px | centered, y=144 | center |
+| Header | Wi-Fi glyph / `WIFI SETUP` / `STARTING ACCESS POINT` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| Body | two completed nodes in the three-stage track / `RESTARTING` | Noto Sans SC | 18 px | centered, y=144/180 | center |
 
 Device then restarts into the SoftAP (D2).
 
@@ -283,9 +290,9 @@ Device then restarts into the SoftAP (D2).
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `SYSTEM UPDATE` | Noto Sans SC | 26 px | centered, y=62 | center |
-| Subtitle | `CHECKING FOR RELEASE` | Noto Sans SC | 14 px | centered, y=110 | center |
-| Text | `CHECKING` | Noto Sans SC | 26 px | centered, y=146 | center |
+| Header | check glyph / `SYSTEM UPDATE` / `CHECKING FOR RELEASE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| State | check glyph / `CHECKING` | Noto Sans SC | 32 px / 18 px | centered, y=124/180 | center |
 
 There is no spinner animation: repeatedly updating a reflective panel wastes
 power and makes the background flicker.
@@ -296,11 +303,10 @@ power and makes the background flicker.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `SYSTEM UPDATE` | Noto Sans SC | 26 px | centered, y=54 | center |
-| Subtitle | `UPDATE READY` | Noto Sans SC | 14 px | centered, y=102 | center |
-| Version | `VERSION 0.2.0` | Noto Sans SC | 14 px | centered, y=130 | center |
-| Hint 1 | `LONG TO APPLY` | Noto Sans SC | 18 px | centered, y=178 | center |
-| Hint 2 | `SHORT TO CANCEL` | Noto Sans SC | 14 px | centered, y=218 | center |
+| Header | download glyph / `SYSTEM UPDATE` / `UPDATE READY` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| Candidate | download glyph / `VERSION 0.2.0` | Noto Sans SC | 32 px / 14 px | centered, y=116/164 | center |
+| Action | held-key glyph / `HOLD TO APPLY` | Noto Sans SC | 32 px / 14 px | centered, y=190/220 | center |
 
 Version comes from the `ota/check/state` payload. A separate long press
 confirms; a short press cancels back to the last normal page. The signed image
@@ -312,7 +318,9 @@ size is learned from the HTTPS response only when the download begins.
 
 | Element | Text | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Text | `UP TO DATE` | Noto Sans SC | 26 px | centered, y=142 | center |
+| Header | check glyph / `SYSTEM UPDATE` / `CHECK COMPLETE` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| State | check-mark glyph / `UP TO DATE` | Noto Sans SC | 32 px / 18 px | centered, y=124/180 | center |
 
 **E4d — control plane failed:**
 
@@ -320,8 +328,9 @@ size is learned from the HTTPS response only when the download begins.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `SYSTEM UPDATE` / `CHECK FAILED` | Noto Sans SC | 26 / 14 px | centered, y=54 / y=102 | center |
-| Reason | `<reason>` (≤16 chars) | Noto Sans SC | 14 px | centered, y=170 | center |
+| Header | warning glyph / `SYSTEM UPDATE` / `CHECK FAILED` | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| Reason | failure glyph / `<reason>` (≤16 chars) | Noto Sans SC | 32 px / 14 px | centered, y=124/182 | center |
 
 The reason is mapped from the control plane's `error_message` and bounded to
 ≤16 uppercase ASCII chars (firmware glyph limit). Examples: `NO COMPATIBLE
@@ -341,13 +350,13 @@ uses a status layout rather than a hand-drawn download icon.
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `SYSTEM UPDATE` | Noto Sans SC | 26 px | (28,26) | left |
-| Phase | `DOWNLOADING` | Noto Sans SC | 14 px | (28,70) | left |
-| Progress | `PROGRESS` / `42%` | Noto Sans SC | 14 px | row y=116, left/right | — |
-| Progress bar track | rect 344×8 | — | — | (28,142), stroke 2 px | — |
-| Progress bar fill | rect `round(344×42/100)-4`×4 | — | — | (30,144) | — |
-| Reminder | `KEEP POWER CONNECTED` | Noto Sans SC | 14 px | centered, y=194 | center |
-| Flow | `DOWNLOAD VERIFY RESTART` | Noto Sans SC | 14 px | centered, y=240 | center |
+| Header | download glyph / `SYSTEM UPDATE` / current phase | Noto Sans SC | 32 px / 26 px / 14 px | header row | — |
+| Divider | 344 px rule | — | 1 px | y=96 | — |
+| Progress | `PROGRESS` / `42%` | Noto Sans SC | 14 px | row y=118, left/right | — |
+| Progress bar track | rect 344×8 | — | — | (28,144), stroke 2 px | — |
+| Progress bar fill | rect `round(344×42/100)-4`×4 | — | — | (30,146) | — |
+| Reminder | `KEEP POWER CONNECTED` | Noto Sans SC | 14 px | centered, y=159 | center |
+| Flow | three-stage node track | — | 99×15 px | centered, y=230 | active stages filled |
 
 Progress percentage = `round(downloaded_bytes / image_bytes × 100)`, shown only
 during `Downloading`; hidden during `Verifying`/`Restarting` (those phases show
@@ -368,9 +377,11 @@ supplementary; color is never the only cue (monochrome panel).
 
 | Element | Text/Content | Glyph | Scale (→ px) | x,y | Align |
 |---|---|---|---|---|---|
-| Title | `<failure>` (≤16 chars) | Noto Sans SC | 26 px | centered, y=90 | center |
-| Action | `<corrective action>` (≤16 chars) | Noto Sans SC | 18 px | centered, y=142 | center |
-| Reason | `<reason>` (≤16 chars, optional) | Noto Sans SC | 18 px | centered, y=184 | center |
+| Symbol | warning triangle | — | 32 px | centered, y=32 | center |
+| Title | `<failure>` (≤16 chars) | Noto Sans SC | 26 px | centered, y=86 | center |
+| Divider | 344 px rule | — | 1 px | y=124 | — |
+| Action | `<corrective action>` (≤16 chars) | Noto Sans SC | 18 px | centered, y=150 | center |
+| Reason | `<reason>` (≤16 chars, optional) | Noto Sans SC | 14 px | centered, y=194 | center |
 
 Sample: title `WIFI CONN FAILED`, action `REOPEN SETUP`, reason `AUTH FAILED`.
 All strings bounded to ≤16 uppercase ASCII chars; longer messages truncate
